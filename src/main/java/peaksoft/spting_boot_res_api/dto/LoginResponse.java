@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
-@Getter
-@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class RegisterRequest {
+import java.util.Set;
 
-    private String email;
-    private String password;
-    private String firstName;
+@Getter
+@Setter
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+public class LoginResponse {
+
+    private String jwtToken;
+    private String messages;
+    private Set<String> authorities;
 }

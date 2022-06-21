@@ -2,7 +2,7 @@ package peaksoft.spting_boot_res_api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
+import lombok.RequiredArgsConstructor;;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import peaksoft.spting_boot_res_api.dto.StudentRequest;
@@ -14,6 +14,7 @@ import peaksoft.spting_boot_res_api.service.StudentService;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/student")
+@PreAuthorize("hasAuthority('SUPER_ADMIN')")
 @Tag(name = "Student API", description ="User with role admin can add,update, delete or get all students")
 public class StudentController {
 

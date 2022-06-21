@@ -1,40 +1,56 @@
 package peaksoft.spting_boot_res_api.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
-import peaksoft.spting_boot_res_api.entity.Role;
+import org.springframework.stereotype.Service;
+import peaksoft.spting_boot_res_api.dto.RegisterRequest;
+import peaksoft.spting_boot_res_api.dto.RegisterResponse;
 import peaksoft.spting_boot_res_api.entity.User;
-import peaksoft.spting_boot_res_api.repository.RoleRepository;
 import peaksoft.spting_boot_res_api.repository.UserRepository;
 
-@Component
-public class UserService {
+@Service
+@RequiredArgsConstructor
+public class UserService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    PasswordEncoder passwordEncoder;
+    public RegisterResponse create(RegisterRequest request){
+        User user = mapToEntity(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        userRepository.save(user);
+        return mapToResponse(user);
 
-    public User saveUser(User user) {
-        Role userRole = roleRepository.findByRoleName("ROLE_ADMIN");
-        user.setRole(userRole);
-        user.setPassword(user.getPassword());
-        return userRepository.save(user);
     }
 
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email);
+    private User mapToEntity(RegisterRequest request) {
+        User user = new User();
+        user.setEmail(request.getEmail());
+        user.setFirstName(request.getFirstName());
+        user.setPassword(request.getPassword());
+        return user;
     }
 
-    public User findByLoginAndPassword(String email, String password) {
-        User user = findByEmail(email);
-        if (user != null) {
-            return user;
+    private RegisterResponse mapToResponse(User user){
+
+        if (user == null){
+            return null;
         }
-        return null;
+        RegisterResponse response = new RegisterResponse();
+        if (user.getId() != null){
+            response.setId(String.valueOf(user.getId()));
+        }
+        response.setEmail(user.getEmail());
+        response.setFirstName(user.getFirstName());
+        return response;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByEmail(username)
+        .orElseThrow(()-> new UsernameNotFoundException("User with email not found"));
     }
 }
